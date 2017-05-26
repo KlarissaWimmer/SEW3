@@ -1,12 +1,8 @@
 package UE23_Server_Client;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.charset.Charset;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -47,13 +43,24 @@ public class TCP_Server {
     public static void NachrichtVerteilen(String msg, Socket s) throws IOException {
         String r = "";
         for(Map.Entry e : spitzname.entrySet()){
-            if(e.getValue() == s) r = String.valueOf(e.getKey());
-        }
-        int i = 0;
-        while(!r.equals(spitzname.get(i))){
-            i++;
-            TCP_Client.WriteLine(msg, r);
+            if(e.getValue() == s) {
+                r = String.valueOf(e.getKey());
+            }
+            if(r.equals(e.getKey())) {
+                System.out.println("\r\n");
+            } else {
+                TCP_Client.WriteLine(msg, r, (Socket) e.getValue());
             }
         }
+    }
+    public static void abmelden(Socket s) throws IOException {
+        s.close();
+        spitzname.remove(s);
+    }
+    public static String userAusgeben(){
+        for(Map.Entry e : spitzname.entrySet()) {
+            return String.valueOf(e.getKey());
+        }
+        return "falsch";
     }
 }

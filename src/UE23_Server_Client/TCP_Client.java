@@ -44,25 +44,31 @@ public class TCP_Client extends Thread {
                     bw.flush();
                     name = br.readLine();
                 }
+                server.NachrichtVerteilen(name +" hat den Chat betreten\r\n", socket);
+                System.out.println(name +" hat den Chat betreten\r\n");
 
                     while (true) {
                         bw.write(name + ">");
                         bw.flush();
-                        server.NachrichtVerteilen(name +" hat den Chat betreten", socket);
-
                         String zeile = br.readLine();
                         if (zeile == null || zeile.trim().isEmpty()) {
                             break;
                         }
 
                         if(zeile.equals("quit")){
-                           // se.logout(socket);
-                           // break;
+                           server.abmelden(socket);
+                           server.NachrichtVerteilen(name +" hat den Chat verlassen\r\n", socket);
+                            System.out.println(name +" hat den Chat verlassen\n");
+                           break;
+                        }
+                        if(zeile.equals("list")){
+                           // server.NachrichtVerteilen(server.userAusgeben(), socket);
+                           break;
                         }
 
                         server.NachrichtVerteilen(zeile, socket);
                         zeile += "\r\n";
-                        //bw.write(zeile);
+                        bw.write(zeile);
                         //bw.flush();
 /*
                     for (int i = 0; i < ECHOS-1; i++) {
@@ -83,11 +89,12 @@ public class TCP_Client extends Thread {
                 e.printStackTrace();
             }
         }
-        public static void WriteLine(String msg, String n) throws IOException {
+        public static void WriteLine(String msg, String n, Socket s) throws IOException {
             Writer w = null;
-            w = new OutputStreamWriter(socket.getOutputStream(), Charset.forName("ISO-8859-1"));
+            w = new OutputStreamWriter(s.getOutputStream(), Charset.forName("ISO-8859-1"));
             BufferedWriter bw = new BufferedWriter(w);
-            bw.write(n + ": " + msg);
+            bw.write("\r\n" + n + ": " + msg + "\r\n");
             bw.flush();
+
         }
     }

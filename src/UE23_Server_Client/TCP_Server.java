@@ -3,6 +3,7 @@ package UE23_Server_Client;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -16,7 +17,8 @@ public class TCP_Server {
     public static void main(String[] args) {
         new TCP_Server().init();
     }
-    public static Map<String, Socket> spitzname = new TreeMap<>();
+    public static Map<String, Socket> spitzname = new HashMap<>();
+
 
     public void init() {
         try (ServerSocket server = new ServerSocket(50505)) {
@@ -41,26 +43,23 @@ public class TCP_Server {
         }
     }
     public static void NachrichtVerteilen(String msg, Socket s) throws IOException {
-        String r = "";
-        for(Map.Entry e : spitzname.entrySet()){
-            if(e.getValue() == s) {
-                r = String.valueOf(e.getKey());
-            }
-            if(r.equals(e.getKey())) {
-                System.out.println("\r\n");
-            } else {
-                TCP_Client.WriteLine(msg, r, (Socket) e.getValue());
-            }
+        String sender = spitzname.entrySet().stream().filter(e -> e.getValue() == s).map(e -> e.getKey()).findFirst().orElse("");
+        for(Map.Entry<String, Socket> e : spitzname.entrySet()){
+            System.out.println(e.getValue() + " " + (e.getValue() == s));
+            if (e.getKey() != sender) TCP_Client.WriteLine( msg, sender, e.getValue());
         }
     }
-    public static void abmelden(Socket s) throws IOException {
+
+    public static void abmelden(String n, Socket s) throws IOException {
         s.close();
-        spitzname.remove(s);
+        spitzname.remove(n,s);
+        System.out.println(spitzname);
+
     }
     public static String userAusgeben(){
         for(Map.Entry e : spitzname.entrySet()) {
             return String.valueOf(e.getKey());
         }
-        return "falsch";
+        return "keine User vorhanden";
     }
 }

@@ -11,10 +11,9 @@ import java.nio.charset.Charset;
  * am Montag den 15.Mai.2017
  */
 
-
 public class TCP_Client extends Thread {
-        public static TCP_Server server;
-        public static Socket socket;
+        public TCP_Server server;
+        public Socket socket;
 
         public TCP_Client(TCP_Server se, Socket so) {
             server = se;
@@ -44,19 +43,21 @@ public class TCP_Client extends Thread {
                     bw.flush();
                     name = br.readLine();
                 }
-                server.NachrichtVerteilen(name +" hat den Chat betreten\r\n", socket);
+                server.NachrichtVerteilen(" hat den Chat betreten\r\n", socket);
                 System.out.println(name +" hat den Chat betreten\r\n");
 
                     while (true) {
                         bw.write(name + ">");
                         bw.flush();
                         String zeile = br.readLine();
+                        System.out.println(zeile);
                         if (zeile == null || zeile.trim().isEmpty()) {
-                            break;
+                            zeile += "\r\n";
+                            bw.write(name + ">");
                         }
 
                         if(zeile.equals("quit")){
-                           server.abmelden(socket);
+                           server.abmelden(name, socket);
                            server.NachrichtVerteilen(name +" hat den Chat verlassen\r\n", socket);
                             System.out.println(name +" hat den Chat verlassen\n");
                            break;
@@ -66,9 +67,9 @@ public class TCP_Client extends Thread {
                            break;
                         }
 
-                        server.NachrichtVerteilen(zeile, socket);
+                        server.NachrichtVerteilen(":" + zeile, socket);
                         zeile += "\r\n";
-                        bw.write(zeile);
+                        //bw.write(zeile);
                         //bw.flush();
 /*
                     for (int i = 0; i < ECHOS-1; i++) {
@@ -81,7 +82,6 @@ public class TCP_Client extends Thread {
                     }
                     */
 
-
                 }
 
                 System.out.println("Verbindung beendet mit " + socket.getRemoteSocketAddress());
@@ -93,7 +93,7 @@ public class TCP_Client extends Thread {
             Writer w = null;
             w = new OutputStreamWriter(s.getOutputStream(), Charset.forName("ISO-8859-1"));
             BufferedWriter bw = new BufferedWriter(w);
-            bw.write("\r\n" + n + ": " + msg + "\r\n");
+            bw.write("\r\n" + n  + msg + "\r\n");
             bw.flush();
 
         }
